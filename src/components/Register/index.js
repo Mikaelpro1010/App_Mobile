@@ -1,80 +1,54 @@
-import React from 'react';
-import { StyleSheet, TextInput, View, Button, Text,  TouchableOpacity, Image, TouchableNativeFeedback} from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, TextInput, View, Button, Text,  TouchableOpacity, Image, TouchableNativeFeedback} from 'react-native';
+import React, { useState, useEffect } from "react";
+import {auth} from "../../config/firebase"
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import styles from "./styles"
 
 const Register = () => {
+    const [email, registerEmail] = useState("");
+    const [password, registerPassword] = useState("");
+  
+    const registerFirebase = () => {
+      createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in 
+        let user = userCredential.user;
+        // navigation.navigate('Home');
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error("Erro no registro:", errorCode, errorMessage);
+        // ..
+      });
+    }
+
     return(
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <View>
-                <TextInput style={styles.textInput} placeholder='Name'></TextInput>
+                <TextInput style={styles.textInput} placeholder='Email'
+                  type="text" 
+                  onChangeText={(text) => registerEmail(text)}
+                  value={email}
+                 />
             </View>
             <View>
-                <TextInput style={styles.textInput} placeholder='Email'></TextInput>
-            </View>
-            <View>
-                <TextInput style={styles.textInput} placeholder='Password'></TextInput>
-            </View>
-            <View style={styles.button}>
-                <Button
-                color= "green"
-                title="Login"
-                onPress={() => {
-                    // Função a ser executada quando o botão é pressionado
-                }}
+                <TextInput style={styles.textInput} placeholder='Password' 
+                type= "text"
+                onChangeText={(text) => registerPassword(text)} 
+                value={password}
                 />
             </View>
-        </View>
+            <TouchableOpacity
+            style={styles.buttonRegister}
+            onPress={registerFirebase}
+            >
+            <Text style={styles.textButtonLogin}>Register</Text>
+            </TouchableOpacity>
+        </KeyboardAvoidingView>
     );
 }
 
 export default Register;
 
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#00BFFF',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    // box: {
-    //   backgroundColor: '#DCDCDC',
-    //   alignItems: 'center',
-    //   justifyContent: 'center',
-    //   shadowColor: '#000',
-    //   shadowOffset: {
-    //     width: 0,
-    //     height: 2,
-    //   },
-    //   shadowOpacity: 0.50,
-    //   shadowRadius: 4.65,
-    //   elevation: 6,
-    //   width: 300,
-    //   height: 200,
-    // },
-    textInput: {
-      marginBottom: 25,
-      backgroundColor: '#FFFAFA',
-      width: 350,
-      height: 50,
-      borderRadius: 15,
-    },
-    button: {
-      marginTop: 15,
-      width: 200,
-      overflow: 'hidden',
-      borderRadius: 12, // Valor ajustável para obter um botão mais arredondado
-    },
-    // label: {
-    //   fontSize: 15,
-    //   fontWeight: 'bold',
-    // },
-    // text: {
-    //   marginTop: 5,
-    //   fontSize: 15,
-    // },
-    // image: {
-    //   marginBottom: 30,
-    //   width: 100,
-    //   height: 100,
-    // }
-  
-  });

@@ -1,35 +1,85 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, TextInput, View, Button, Text,  TouchableOpacity, Image, TouchableNativeFeedback} from 'react-native';
-import React from 'react';
+import { TextInput, View, Button, Text,  TouchableOpacity, Image, TouchableNativeFeedback, KeyboardAvoidingView, Platform} from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import userIcon from '../../../assets/icon-user.png';;
+import userIcon from '../../../assets/icon-user.png';
+import React, { useState, useEffect } from "react";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import {auth} from "../../config/firebase"
+import styles from "./styles"
+
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorLogin, setErrorLogin] = useState("");
   const navigation = useNavigation();
+
+  const loginFirebase = () => {
+    signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      //Signed in
+      let user = userCredential.user;
+      navigation.navigate('Home');
+    })
+    .catch((error) =>{
+      
+      let errorCode = error.code;
+      let errorMessage = error.message;
+    });
+  }
 
   const navigateToRegister = () => {
       navigation.navigate('Register');
   };
 
   return (
-    <View style={styles.container}> 
+    <KeyboardAvoidingView style={styles.container}> 
       <Image style={styles.image} source={userIcon}/>
       <View>
-          <TextInput style={styles.textInput} placeholder='Email'></TextInput>
-          
+          <TextInput style={styles.textInput} 
+          placeholder='Email' 
+          type="text" 
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          />
       </View>
       <View>
-          <TextInput style={styles.textInput} placeholder='Password'></TextInput>
+          <TextInput style={styles.textInput} 
+          placeholder='Password'
+          type= "text"
+          onChangeText={(text) => setPassword(text)} 
+          value={password}
+          />
       </View>
-      <View style={styles.button}>
-            <Button
-            color= "green"
-            title="Login"
-            onPress={() => {
-                // Função a ser executada quando o botão é pressionado
-            }}
-            />
+      {errorLogin === true
+      ?
+      <View styles={styles.contentAlert}>
+        <MaterialCommunityIcons
+        name="alert-circle"
+        size={24}
+        color="#bdbdbd"
+        />
+        <Text style={styles.warningAlert}>invalid e-mail or password</Text>
       </View>
+      :
+      <View/>
+      }
+        { email === "" || password === ""
+        ?
+          <TouchableOpacity
+            disabled={true}
+            style={styles.buttonLogin}
+          >
+            <Text style={styles.textButtonLogin}>Login</Text>
+          </TouchableOpacity>
+        :
+          <TouchableOpacity
+            style={styles.buttonLogin}
+            onPress={loginFirebase}
+          >
+            <Text style={styles.textButtonLogin}>Login</Text>
+          </TouchableOpacity>
+        }
       <Text style={styles.text}>
           Não tem uma conta?{' '}
           <TouchableNativeFeedback onPress={navigateToRegister}>
@@ -39,59 +89,8 @@ const Login = () => {
           </TouchableOpacity> */}
       </Text>
       <StatusBar style="auto" />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 export default Login;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#00BFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    backgroundColor: '#DCDCDC',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.50,
-    shadowRadius: 4.65,
-    elevation: 6,
-    width: 300,
-    height: 200,
-  },
-  textInput: {
-    marginBottom: 25,
-    backgroundColor: '#FFFAFA',
-    width: 350,
-    height: 50,
-    borderRadius: 15,
-  },
-  button: {
-    marginTop: 15,
-    width: 200,
-    overflow: 'hidden',
-    borderRadius: 12, // Valor ajustável para obter um botão mais arredondado
-  },
-  label: {
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  text: {
-    marginTop: 5,
-    fontSize: 15,
-  },
-  image: {
-    marginBottom: 30,
-    width: 100,
-    height: 100,
-  }
-
-});
